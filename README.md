@@ -31,18 +31,31 @@ npx prisma db seed
 npm run dev
 ```
 
-### Вариант B: база в облаке (Docker не установлен)
+### Вариант B: база в Neon (бесплатно, Docker не нужен)
 
-1. Зарегистрируйтесь на [neon.tech](https://neon.tech) (бесплатный тариф).
-2. Создайте проект и скопируйте connection string.
-3. Впишите его в `.env` в `DATABASE_URL` (с `?sslmode=require`).
-4. Выполните:
+1. Зарегистрируйтесь на [neon.tech](https://neon.tech) (Free tier: 1 проект, 0.5 GB, автосон).
+2. **Create project** → имя `bijouterie` → регион ближе к вам.
+3. На странице **Connect** скопируйте connection string
+   (вид: `postgresql://user:password@ep-xxx.eu-central-1.aws.neon.tech/neondb?sslmode=require`).
+4. Примените схему и данные одной командой:
 
-```bash
-npx prisma db push
-npx prisma db seed
+```powershell
+.\scripts\init-db.ps1 -DatabaseUrl "postgresql://..."
+```
+
+Скрипт сам: создаст `.env` из `.env.example`, запишет `DATABASE_URL`,
+выполнит `prisma generate` → `db push` → `db seed` и проверит результат.
+
+5. Запустите приложение:
+
+```powershell
 npm run dev
 ```
+
+Проверка состояния БД в любой момент: `npm run db:check`.
+
+> 💡 Neon усыпляет бесплатный проект после простоя. Первый запрос после
+> паузы может занять 1–3 секунды — это нормально, не баг.
 
 Приложение: http://localhost:3000
 Prisma Studio: `npm run db:studio`
@@ -60,6 +73,7 @@ Prisma Studio: `npm run db:studio`
 | `npm run db:push` | синхронизировать схему с БД (только dev) |
 | `npm run db:migrate` | создать файл миграции (для продакшена) |
 | `npm run db:seed` | залить тестовые данные |
+| `npm run db:check` | проверить, что БД доступна и данные на месте |
 | `npm run db:reset` | пересоздать БД + миграции + seed |
 
 ## Структура
