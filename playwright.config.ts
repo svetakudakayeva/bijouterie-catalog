@@ -28,8 +28,7 @@ export default defineConfig({
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
-    env: {
-      DATABASE_URL: process.env.DATABASE_URL ?? "",
-    },
+    // DATABASE_URL не передаём: Next.js читает .env сам,
+    // а пустой override затёр бы значение из файла.
   },
 });

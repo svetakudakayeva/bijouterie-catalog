@@ -31,12 +31,18 @@ npx prisma db seed
 npm run dev
 ```
 
-### Вариант B: база в Neon (бесплатно, Docker не нужен)
+### Вариант B: база в Supabase (бесплатно, Docker не нужен)
 
-1. Зарегистрируйтесь на [neon.tech](https://neon.tech) (Free tier: 1 проект, 0.5 GB, автосон).
-2. **Create project** → имя `bijouterie` → регион ближе к вам.
-3. На странице **Connect** скопируйте connection string
-   (вид: `postgresql://user:password@ep-xxx.eu-central-1.aws.neon.tech/neondb?sslmode=require`).
+> ⚠️ Neon не подходит, если вы в РФ: Cloudflare отдаёт 403 на всех его доменах.
+> Supabase работает с любым PostgreSQL-клиентом, код проекта менять не нужно.
+
+1. Зарегистрируйтесь на [supabase.com](https://supabase.com) (Free tier: 500 MB, 2 проекта).
+2. **New project** → имя `bijouterie`, пароль БД (сохраните!), регион ближе к вам.
+3. Дождитесь провижининга (~2 минуты) → **Connect** → вкладка **Session pooler**
+   → скопируйте URI вида:
+   ```
+   postgresql://postgres.abcdefgh:ПАРОЛЬ@aws-0-eu-central-1.pooler.supabase.com:5432/postgres
+   ```
 4. Примените схему и данные одной командой:
 
 ```powershell
@@ -54,8 +60,19 @@ npm run dev
 
 Проверка состояния БД в любой момент: `npm run db:check`.
 
-> 💡 Neon усыпляет бесплатный проект после простоя. Первый запрос после
-> паузы может занять 1–3 секунды — это нормально, не баг.
+**Про подключения Supabase:**
+
+| Тип | Порт | Когда использовать |
+|---|---|---|
+| Session pooler | 5432 | **наш случай** — миграции + приложение |
+| Transaction pooler | 6543 | serverless-функции с большим RPS (`?pgbouncer=true`) |
+| Direct | 5432 | только IPv6, для новых проектов часто недоступен |
+
+Если в пароле есть `@ : / ? #`, закодируйте его через URL-encode
+(`@` → `%40`) или задайте пароль только из букв и цифр.
+
+> 💡 Бесплатный проект Supabase засыпает после 7 дней простоя.
+> Первый запрос после паузы может занять несколько секунд.
 
 Приложение: http://localhost:3000
 Prisma Studio: `npm run db:studio`

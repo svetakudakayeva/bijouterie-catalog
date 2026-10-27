@@ -17,7 +17,9 @@ param(
     [string]$DatabaseUrl
 )
 
-$ErrorActionPreference = "Stop"
+# Continue, а не Stop: в PowerShell 5.1 stderr нативных команд (prisma, npx)
+# при Stop воспринимается как фатальная ошибка. Коды выхода проверяем явно.
+$ErrorActionPreference = "Continue"
 $nl = [Environment]::NewLine
 
 $root = Split-Path -Parent $PSScriptRoot
@@ -53,7 +55,8 @@ if ($content -match '(?m)^DATABASE_URL=') {
 } else {
     $content = $content.TrimEnd() + $nl + $newLineValue + $nl
 }
-Set-Content -Path $envPath -Value $content -NoNewline -Encoding UTF8
+# Без BOM: dotenv/Next.js не должен видеть префикс U+FEFF у первого ключа.
+[System.IO.File]::WriteAllText($envPath, $content, (New-Object System.Text.UTF8Encoding($false)))
 Write-Host "OK  DATABASE_URL записан в .env" -ForegroundColor Green
 
 # 3. Применяем схему и данные
